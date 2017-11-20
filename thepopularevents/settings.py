@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'thepopularevents.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'gonano',
         'USER': os.environ.get('DATA_DB_USER'),
         'PASSWORD': os.environ.get('DATA_DB_PASS'),
