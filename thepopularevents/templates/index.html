@@ -48,6 +48,14 @@ template: `<div><h2>{{ month }}</h2>
 </tr>
 </table></div>`
 })
+Vue.component('event-info', {
+  props: ['event'],
+  template: '<p>{{ event.yes_rsvp_count }} attending "<a target="_blank" v-bind:href="event.link">{{ event.group.name }}: {{ event.name }}</a>" at {{ event.local_time }}<template v-if="event.venue"> in {{ event.venue.city }}</template> ({{ hasFood(event.description) ? "food" : "no food" }})</p>',  methods: {
+    hasFood: function(description) {
+      return description.toLowerCase().indexOf('food') > -1
+    }
+  }
+})
 Vue.component('calendar-cell', {
 // The todo-item component now accepts a
 // "prop", which is like a custom attribute.
@@ -64,7 +72,7 @@ getDate: function(dayOfMonth) {
 return this.yearAndMonth.format('YYYY-')+this.yearAndMonth.format('MM-')+pad(dayOfMonth, 2);
 }
 },
-template: '<td>{{ dayOfMonth }} <ul><li v-for="event in eventsByDay[getDate(dayOfMonth)]">{{ event.yes_rsvp_count }} attending "<a target="_blank" v-bind:href="event.link">{{ event.group.name }}: {{ event.name }}</a>" at {{ event.local_time }}<template v-if="event.venue"> in {{ event.venue.city }}</template></li></ul></td>'
+template: '<td>{{ dayOfMonth }} <ul><li v-for="event in eventsByDay[getDate(dayOfMonth)]"><event-info v-bind:event="event"></event-info></li></ul></td>'
 })
 var app = new Vue({
 el: '#app',
