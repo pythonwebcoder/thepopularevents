@@ -52,7 +52,14 @@ Vue.component('event-info', {
   props: ['event'],
   template: '<p>{{ event.yes_rsvp_count }} attending "<a target="_blank" v-bind:href="event.link">{{ event.group.name }}: {{ event.name }}</a>" at {{ event.local_time }}<template v-if="event.venue"> in {{ event.venue.city }}</template> ({{ hasFood(event.description) ? "food" : "no food" }})</p>',  methods: {
     hasFood: function(description) {
-      return description.toLowerCase().indexOf('food') > -1
+      items = ['food', 'happy hour', 'snacks', 'appetizer']
+      returnTrue = false;
+      $.each(items, function(i, item) {
+        if (description.toLowerCase().indexOf(item) > -1) {
+          returnTrue = true;
+        }
+      })
+      return returnTrue;
     }
   }
 })
@@ -111,6 +118,9 @@ table {
 border-collapse:collapse;
 width:100%;
 }
+p {
+  margin:0;
+}
 </style>
 </head>
 <body>
@@ -120,7 +130,7 @@ width:100%;
 <template v-if="topTenEvents.length > 0">
 <h2>Top Ten Events</h2>
 <ul>
-<li v-for="event in topTenEvents">On {{ event.local_date }} {{ event.yes_rsvp_count }} attending "<a target="_blank" v-bind:href="event.link">{{ event.group.name }}: {{ event.name }}</a>" at {{ event.local_time }}<template v-if="event.venue"> in {{ event.venue.city }}</template></li>
+<li v-for="event in topTenEvents"><event-info v-bind:event="event"></event-info></li>
 </ul>
 <calendar v-bind:month="currentMonth" v-bind:year-and-month="yearAndMonth" v-bind:day-of-week="dayOfWeek" v-bind:last-day-of-month-day-of-week="lastDayOfMonthDayOfWeek" v-bind:day-of-month="dayOfMonth" v-bind:end-of-month="endOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
 <calendar v-bind:month="nextMonth" v-bind:year-and-month="nextYearAndMonth" v-bind:day-of-week="nextMonthDayOfWeek" v-bind:last-day-of-month-day-of-week="nextMonthLastDayOfMonthDayOfWeek" v-bind:day-of-month="1" v-bind:end-of-month="nextMonthEndOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
