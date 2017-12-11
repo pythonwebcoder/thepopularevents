@@ -12,11 +12,10 @@ n = n + '';
 return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 Vue.component('calendar', {
-props: ['month', 'yearAndMonth', 'dayOfWeek', 'lastDayOfMonthDayOfWeek', 'dayOfMonth', 'endOfMonth', 'eventsByDay'],
+props: ['searchSettings', 'month', 'yearAndMonth', 'dayOfWeek', 'lastDayOfMonthDayOfWeek', 'dayOfMonth', 'endOfMonth', 'eventsByDay'],
 computed: {
   numberOfRows: function() {
-    console.log(this.endOfMonth, this.dayOfMonth, this.dayOfWeek)
-    return Math.ceil((this.endOfMonth - this.dayOfMonth + this.dayOfWeek + 1) / 7)
+    return Math.ceil((this.endOfMonth - this.dayOfMonth + this.dayOfWeek + 1) / 7);
   }
 },
 methods: {
@@ -35,55 +34,68 @@ template: `<div><h2>{{ month }}</h2>
 <tr v-for="vertical_i in range(numberOfRows)">
 <template v-if="vertical_i == 0">
 <td v-for="i in range(dayOfWeek)"></td>
-<calendar-cell v-for="i in range(7-dayOfWeek)" v-bind:year-and-month="yearAndMonth" v-bind:day-of-month="dayOfMonth + i" v-bind:eventsByDay="eventsByDay" key="vertical_i + ',' + i"></calendar-cell>
+<calendar-cell v-for="i in range(7-dayOfWeek)" v-bind:search-settings="searchSettings" v-bind:year-and-month="yearAndMonth" v-bind:day-of-month="dayOfMonth + i" v-bind:eventsByDay="eventsByDay" key="vertical_i + ',' + i"></calendar-cell>
 </template>
 <template v-else-if="vertical_i == (numberOfRows - 1)">
-<calendar-cell v-for="i in range(lastDayOfMonthDayOfWeek+1)" v-bind:year-and-month="yearAndMonth" v-bind:day-of-month="i + (endOfMonth - lastDayOfMonthDayOfWeek)" v-bind:eventsByDay="eventsByDay" key="vertical_i + ',' + i"></calendar-cell>
+<calendar-cell v-for="i in range(lastDayOfMonthDayOfWeek+1)" v-bind:search-settings="searchSettings" v-bind:year-and-month="yearAndMonth" v-bind:day-of-month="i + (endOfMonth - lastDayOfMonthDayOfWeek)" v-bind:eventsByDay="eventsByDay" key="vertical_i + ',' + i"></calendar-cell>
 <td v-for="i in range(0, 7-lastDayOfMonthDayOfWeek-1)"></td>
 </template>
 <template v-else>
-<calendar-cell v-for="i in range(7)" v-bind:year-and-month="yearAndMonth" v-bind:day-of-month="(vertical_i) * 7 + i + (dayOfMonth - dayOfWeek)" v-bind:eventsByDay="eventsByDay" key="vertical_i + ',' + i"></calendar-cell>
+<calendar-cell v-for="i in range(7)" v-bind:search-settings="searchSettings" v-bind:year-and-month="yearAndMonth"  v-bind:day-of-month="(vertical_i) * 7 + i + (dayOfMonth - dayOfWeek)" v-bind:eventsByDay="eventsByDay" key="vertical_i + ',' + i"></calendar-cell>
 
 </template>
 </tr>
 </table></div>`
 })
-Vue.component('event-info', {
-  props: ['event'],
-  template: '<span>{{ event.yes_rsvp_count }} attending "<a target="_blank" v-bind:href="event.link">{{ event.group.name }}: {{ event.name }}</a>" at {{ event.local_time }}<template v-if="event.venue"> in {{ event.venue.city }}</template> ({{ hasFood(event.description) ? "food" : "no food" }})</span>',  methods: {
-    hasFood: function(description) {
-      items = ['food', 'happy hour', 'snacks', 'appetizer']
-      returnTrue = false;
-      $.each(items, function(i, item) {
-        if (description.toLowerCase().indexOf(item) > -1) {
-          returnTrue = true;
-        }
-      })
-      return returnTrue;
-    }
+settingsMixin = {methods: {
+  hasFood: function(description) {
+    items = ['food', 'happy hour', 'snacks', 'appetizer']
+    returnTrue = false;
+    $.each(items, function(i, item) {
+      if (description.toLowerCase().indexOf(item) > -1) {
+        returnTrue = true;
+      }
+    })
+    return returnTrue;
   }
+}}
+Vue.component('event-info', {
+  mixins: [settingsMixin],
+  props: ['event'],
+  template: '<span>{{ event.yes_rsvp_count }} attending "<a target="_blank" v-bind:href="event.link">{{ event.group.name }}: {{ event.name }}</a>" at {{ event.local_time }}<template v-if="event.venue"> in {{ event.venue.city }}</template> ({{ hasFood(event.description) ? "food" : "no food" }})</span>'
 })
 Vue.component('calendar-cell', {
 // The todo-item component now accepts a
 // "prop", which is like a custom attribute.
 // This prop is called todo.
-props: ['dayOfMonth', 'eventsByDay', 'yearAndMonth'],
+mixins: [settingsMixin],
+props: ['searchSettings', 'dayOfMonth', 'eventsByDay', 'yearAndMonth'],
 methods: {
 range: function(start, end, step=1) {
 return _.range(start, end, step);
 },
 getDate: function(dayOfMonth) {
-  console.log('yearAndMonth', this.yearAndMonth)
-  console.log('dayOfMonth', dayOfMonth)
 // append 0 to dayOfMonth
 return this.yearAndMonth.format('YYYY-')+this.yearAndMonth.format('MM-')+pad(dayOfMonth, 2);
+},
+shouldShow: function(event) {
+  if (this.searchSettings.mustHaveFood) {
+    if (this.hasFood(event.description)) {
+      return true
+    } else {
+      return false
+    }
+  } else {
+    return true
+  }
 }
 },
-template: '<td>{{ dayOfMonth }} <ul><li v-for="event in eventsByDay[getDate(dayOfMonth)]"><event-info v-bind:event="event"></event-info></li></ul></td>'
+template: '<td>{{ dayOfMonth }} <ul><li v-for="event in eventsByDay[getDate(dayOfMonth)]" v-if="shouldShow(event)"><event-info v-bind:event="event"></event-info></li></ul></td>'
 })
 var app = new Vue({
 el: '#app',
 data: {
+  searchSettings: {mustHaveFood: false},
 currentMonth: moment().format('MMMM'),
 yearAndMonth: moment(),
 nextYearAndMonth: moment().add(1, 'months'),
@@ -128,12 +140,13 @@ p {
 
 <h1>The Popular Events</h1>
 <template v-if="topTenEvents.length > 0">
+  Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" />
 <h2>Top Ten Events</h2>
 <ul>
 <li v-for="event in topTenEvents">On {{ event.local_date }}: <event-info v-bind:event="event"></event-info></li>
 </ul>
-<calendar v-bind:month="currentMonth" v-bind:year-and-month="yearAndMonth" v-bind:day-of-week="dayOfWeek" v-bind:last-day-of-month-day-of-week="lastDayOfMonthDayOfWeek" v-bind:day-of-month="dayOfMonth" v-bind:end-of-month="endOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
-<calendar v-bind:month="nextMonth" v-bind:year-and-month="nextYearAndMonth" v-bind:day-of-week="nextMonthDayOfWeek" v-bind:last-day-of-month-day-of-week="nextMonthLastDayOfMonthDayOfWeek" v-bind:day-of-month="1" v-bind:end-of-month="nextMonthEndOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
+<calendar v-bind:search-settings="searchSettings" v-bind:month="currentMonth" v-bind:year-and-month="yearAndMonth" v-bind:day-of-week="dayOfWeek" v-bind:last-day-of-month-day-of-week="lastDayOfMonthDayOfWeek" v-bind:day-of-month="dayOfMonth" v-bind:end-of-month="endOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
+<calendar v-bind:search-settings="searchSettings" v-bind:month="nextMonth" v-bind:year-and-month="nextYearAndMonth" v-bind:day-of-week="nextMonthDayOfWeek" v-bind:last-day-of-month-day-of-week="nextMonthLastDayOfMonthDayOfWeek" v-bind:day-of-month="1" v-bind:end-of-month="nextMonthEndOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
 </template>
 <template v-else>Loading</template>
 {% endverbatim %}
