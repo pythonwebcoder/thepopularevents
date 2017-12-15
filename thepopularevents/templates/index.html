@@ -3,6 +3,9 @@
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.2/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+<script>
+var googleapikey = '{{ googleapikey }}';
+</script>
 {% verbatim %}
 <script>
 $(function() {
@@ -52,9 +55,10 @@ settingsMixin = {methods: {
     items = ['food', 'happy hour', 'snacks', 'appetizer']
     returnTrue = false;
     $.each(items, function(i, item) {
+      try {
       if (description.toLowerCase().indexOf(item) > -1) {
         returnTrue = true;
-      }
+      }} catch(err) {}
     })
     return returnTrue;
   }
@@ -108,15 +112,37 @@ dayOfMonth: moment().date(),
 endOfMonth: moment().endOf('month').date(),
 nextMonthEndOfMonth: moment().add(1, 'months').startOf('month').endOf('month').date(),
 eventsByDay: {},
-topTenEvents: []
+topTenEvents: [],
+usersPosition: {},
+usersCity: '',
+radius: 5,
 },
 created: function() {
-$.get('/get_events/', function(data) {
-app.eventsByDay = data.most_popular_events_per_day;
-app.topTenEvents = data.top_ten_events;
-})
-},
+  navigator.geolocation.getCurrentPosition(this.setUsersPosition)
 
+},
+methods: {
+  setUsersPosition: function(position) {
+    this.usersPosition = {'lat': position.coords.latitude, 'lng': position.coords.longitude}
+    $.get('https://maps.googleapis.com/maps/api/geocode/json?latlng='+this.usersPosition.lat+','+this.usersPosition.lng+'&key='+googleapikey, function(data) {
+      app.usersCity = data['results'][0]['formatted_address'];
+      console.log(data['results'][0]['formatted_address'])
+      app.search();
+    })
+  },
+  search: function() {
+    app.eventsByDay = {};
+    app.topTenEvents = [];
+    $.get('https://maps.googleapis.com/maps/api/geocode/json?address='+app.usersCity, function(data) {
+      app.usersPosition = data.results[0].geometry.location;
+      $.get('/get_events/?radius='+$('#radius option:selected').text()+'&lat='+app.usersPosition.lat+'&lng='+app.usersPosition.lng, function(data) {
+      app.eventsByDay = data.most_popular_events_per_day;
+      app.topTenEvents = data.top_ten_events;
+      })
+    })
+
+  }
+}
 })
 })
 
@@ -133,12 +159,16 @@ width:100%;
 p {
   margin:0;
 }
+#users-address {
+  width:400px;
+}
 </style>
 </head>
 <body>
 <div id="app">
 
 <h1>The Popular Events</h1>
+Your address or city/state: <input id="users-address" type="text" v-model="usersCity" /> Miles: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select><button v-on:click="search">Search</button>
 <template v-if="topTenEvents.length > 0">
   Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" />
 <h2>Top Ten Events</h2>
@@ -148,7 +178,7 @@ p {
 <calendar v-bind:search-settings="searchSettings" v-bind:month="currentMonth" v-bind:year-and-month="yearAndMonth" v-bind:day-of-week="dayOfWeek" v-bind:last-day-of-month-day-of-week="lastDayOfMonthDayOfWeek" v-bind:day-of-month="dayOfMonth" v-bind:end-of-month="endOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
 <calendar v-bind:search-settings="searchSettings" v-bind:month="nextMonth" v-bind:year-and-month="nextYearAndMonth" v-bind:day-of-week="nextMonthDayOfWeek" v-bind:last-day-of-month-day-of-week="nextMonthLastDayOfMonthDayOfWeek" v-bind:day-of-month="1" v-bind:end-of-month="nextMonthEndOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
 </template>
-<template v-else>Loading</template>
+<template v-else>Loading top ten list and calendars</template>
 {% endverbatim %}
 </div>
 </body></html>

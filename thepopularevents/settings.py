@@ -35,7 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'thepopularevents'
+    'thepopularevents',
+    'sslserver'
 ]
 
 MIDDLEWARE = [
@@ -123,3 +124,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 MEETUPAPIKEY = os.environ.get('MEETUPAPIKEY')
+GOOGLEAPIKEY = os.environ.get("GOOGLEAPIKEY")
