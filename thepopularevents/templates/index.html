@@ -168,7 +168,7 @@ p {
 <div id="app">
 
 <h1>The Popular Events</h1>
-Your address or city/state: <input id="users-address" type="text" v-model="usersCity" /> Miles: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select><button v-on:click="search">Search</button>
+Your address or city/state: <input id="users-address" type="text" v-model="usersCity" @keyup.enter="search" /> Miles: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select> <button v-on:click="search">Search</button>
 <template v-if="topTenEvents.length > 0">
   Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" />
 <h2>Top Ten Events</h2>
