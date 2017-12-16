@@ -6,6 +6,8 @@
 <script>
 var googleapikey = '{{ googleapikey }}';
 </script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 {% verbatim %}
 <script>
 $(function() {
@@ -115,7 +117,7 @@ eventsByDay: {},
 topTenEvents: [],
 usersPosition: {},
 usersCity: '',
-radius: 5,
+radius: 20,
 },
 created: function() {
   navigator.geolocation.getCurrentPosition(this.setUsersPosition)
@@ -150,8 +152,12 @@ methods: {
 </script>
 <style>
 body {
-  font:1em sans-serif;
+  font:1.25em sans-serif;
+  margin:0 10px 10px 10px;
 }
+h1 {font-size:2em;font-weight:bold;}
+h2 {font-size:1.5em;font-weight:bold;}
+h1, h2 {margin:10px 0;}
 th, td {
 vertical-align:top;
 border:1px solid #000;
