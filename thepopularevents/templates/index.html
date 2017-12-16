@@ -138,6 +138,7 @@ methods: {
       $.get('/get_events/?radius='+$('#radius option:selected').text()+'&lat='+app.usersPosition.lat+'&lng='+app.usersPosition.lng, function(data) {
       app.eventsByDay = data.most_popular_events_per_day;
       app.topTenEvents = data.top_ten_events;
+      app.topTenEventsWithFood = data.top_ten_events_with_food;
       })
     })
 
@@ -148,6 +149,9 @@ methods: {
 
 </script>
 <style>
+body {
+  font:1em sans-serif;
+}
 th, td {
 vertical-align:top;
 border:1px solid #000;
@@ -172,7 +176,10 @@ Your address or city/state: <input id="users-address" type="text" v-model="users
 <template v-if="topTenEvents.length > 0">
   Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" />
 <h2>Top Ten Events</h2>
-<ul>
+<ul v-if="searchSettings.mustHaveFood">
+<li v-for="event in topTenEventsWithFood">On {{ event.local_date }}: <event-info v-bind:event="event"></event-info></li>
+</ul>
+<ul v-else>
 <li v-for="event in topTenEvents">On {{ event.local_date }}: <event-info v-bind:event="event"></event-info></li>
 </ul>
 <calendar v-bind:search-settings="searchSettings" v-bind:month="currentMonth" v-bind:year-and-month="yearAndMonth" v-bind:day-of-week="dayOfWeek" v-bind:last-day-of-month-day-of-week="lastDayOfMonthDayOfWeek" v-bind:day-of-month="dayOfMonth" v-bind:end-of-month="endOfMonth" v-bind:events-by-day="eventsByDay"></calendar>

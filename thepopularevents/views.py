@@ -6,6 +6,15 @@ import requests
 def home_page(request):
     return render(request, 'index.html', {'googleapikey': settings.GOOGLEAPIKEY})
 
+def has_food(description):
+    items = ['food', 'happy hour', 'snacks', 'appetizer']
+    if not description:
+        return False
+    for item in items:
+        if item in description.lower():
+            return True
+    return False
+
 def get_events(request):
     import requests
     if not settings.MEETUPAPIKEY:
@@ -16,6 +25,7 @@ def get_events(request):
     print requests.get(events_url)
     events = requests.get(events_url).json()['events']
     top_ten_events = sorted([y for y in events], key=lambda t: t.get('yes_rsvp_count'), reverse=True)[:10]
+    top_ten_events_with_food = [z for z in sorted([y for y in events], key=lambda t: t.get('yes_rsvp_count'), reverse=True) if has_food(z.get('description'))][:10]
     days_to_events = dict([(x, sorted([y for y in events if y.get('local_date') == x], key=lambda t: t.get('yes_rsvp_count'), reverse=True)) for x in [row.get("local_date") for row in events]])
-    data = {'most_popular_events_per_day': days_to_events, 'top_ten_events': top_ten_events}
+    data = {'most_popular_events_per_day': days_to_events, 'top_ten_events': top_ten_events, 'top_ten_events_with_food': top_ten_events_with_food}
     return JsonResponse(data, safe=False)
