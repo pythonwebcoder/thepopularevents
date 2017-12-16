@@ -96,7 +96,7 @@ shouldShow: function(event) {
   }
 }
 },
-template: '<td>{{ dayOfMonth }} <ul><li v-for="event in eventsByDay[getDate(dayOfMonth)]" v-if="shouldShow(event)"><event-info v-bind:event="event"></event-info></li></ul></td>'
+template: '<td><strong>{{ dayOfMonth }}</strong><br/><br/> <ul><li v-for="event in eventsByDay[getDate(dayOfMonth)]" v-if="shouldShow(event)"><event-info v-bind:event="event"></event-info></li></ul></td>'
 })
 var app = new Vue({
 el: '#app',
@@ -155,12 +155,14 @@ body {
   font:1.25em sans-serif;
   margin:0 10px 10px 10px;
 }
+th, strong {font-weight:bold}
 h1 {font-size:2em;font-weight:bold;}
 h2 {font-size:1.5em;font-weight:bold;}
 h1, h2 {margin:10px 0;}
 th, td {
 vertical-align:top;
 border:1px solid #000;
+padding:5px;
 }
 table {
 border-collapse:collapse;
@@ -171,6 +173,10 @@ p {
 }
 #users-address {
   width:400px;
+}
+ul {
+  list-style:square;
+  margin-left:20px;
 }
 </style>
 </head>
