@@ -118,6 +118,7 @@ topTenEvents: [],
 usersPosition: {},
 usersCity: '',
 radius: 20,
+isMobile: $(window).width() < 600,
 },
 created: function() {
   navigator.geolocation.getCurrentPosition(this.setUsersPosition)
@@ -158,6 +159,8 @@ body {
 th, strong {font-weight:bold}
 h1 {font-size:2em;font-weight:bold;}
 h2 {font-size:1.5em;font-weight:bold;}
+
+h3 {font-size:1.25em;font-weight:bold;}
 h1, h2 {margin:10px 0;}
 th, td {
 vertical-align:top;
@@ -184,9 +187,11 @@ ul {
 <div id="app">
 
 <h1>The Popular Events</h1>
-Your address or city/state: <input id="users-address" type="text" v-model="usersCity" @keyup.enter="search" /> Miles: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select> <button v-on:click="search">Search</button>
+{{ isMobile }}
+Your address or city/state: <input id="users-address" type="text" v-model="usersCity" @keyup.enter="search" /> Miles: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select>
+Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" /> <button v-on:click="search">Search</button>
 <template v-if="topTenEvents.length > 0">
-  Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" />
+
 <h2>Top Ten Events</h2>
 <ul v-if="searchSettings.mustHaveFood">
 <li v-for="event in topTenEventsWithFood">On {{ event.local_date }}: <event-info v-bind:event="event"></event-info></li>
@@ -194,10 +199,20 @@ Your address or city/state: <input id="users-address" type="text" v-model="users
 <ul v-else>
 <li v-for="event in topTenEvents">On {{ event.local_date }}: <event-info v-bind:event="event"></event-info></li>
 </ul>
+<template v-if="isMobile">
+  <template v-for="date in Object.keys(eventsByDay).sort()">
+    <h3>{{ date }}</h3>
+    <ul>
+<li v-for="event in eventsByDay[date]"><event-info v-bind:event="event"></event-info></li>
+    </ul>
+  </template>
+</template>
+<template v-else>
 <calendar v-bind:search-settings="searchSettings" v-bind:month="currentMonth" v-bind:year-and-month="yearAndMonth" v-bind:day-of-week="dayOfWeek" v-bind:last-day-of-month-day-of-week="lastDayOfMonthDayOfWeek" v-bind:day-of-month="dayOfMonth" v-bind:end-of-month="endOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
 <calendar v-bind:search-settings="searchSettings" v-bind:month="nextMonth" v-bind:year-and-month="nextYearAndMonth" v-bind:day-of-week="nextMonthDayOfWeek" v-bind:last-day-of-month-day-of-week="nextMonthLastDayOfMonthDayOfWeek" v-bind:day-of-month="1" v-bind:end-of-month="nextMonthEndOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
 </template>
-<template v-else>Loading top ten list and calendars</template>
+</template>
+<template v-else><p>Loading top ten list and calendars</p></template>
 {% endverbatim %}
 </div>
 </body></html>
