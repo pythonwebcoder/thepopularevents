@@ -186,6 +186,7 @@ ul {
 <div id="app">
 
 <h1>The Popular Events</h1>
+  <p>This app makes it easy to find popular events listed on meetup.com. See the <a href="https://github.com/pythonwebcoder/thepopularevents" target="_blank">source code</a>.</p>
 Your address or city/state: <input id="users-address" type="text" v-model="usersCity" @keyup.enter="search" /> Miles: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select>
 Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" /> <button v-on:click="search">Search</button>
 <template v-if="topTenEvents.length > 0">
