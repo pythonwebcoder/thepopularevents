@@ -125,3 +125,4 @@ STATIC_URL = '/static/'
 
 MEETUPAPIKEY = os.environ.get('MEETUPAPIKEY')
 GOOGLEAPIKEY = os.environ.get("GOOGLEAPIKEY")
+EVENTBRITEAPIKEY = os.environ.get("EVENTBRITEAPIKEY")
