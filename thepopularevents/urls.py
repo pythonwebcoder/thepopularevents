@@ -20,5 +20,6 @@ import thepopularevents.views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', thepopularevents.views.home_page, name='home'),
-    url(r'^get_events/$', thepopularevents.views.get_events, name='get_events'),
+    url(r'^get_events/$',
+        thepopularevents.views.get_events, name='get_events'),
 ]
