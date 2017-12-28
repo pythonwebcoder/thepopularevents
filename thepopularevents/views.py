@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse
-import settings
+from . import settings
 import requests
 
 
@@ -38,6 +38,7 @@ def get_events(request):
                                       (request.GET.get('lng'), request.GET.get('lat'), request.GET.get('radius'), settings.EVENTBRITEAPIKEY)).json()
     print 'https://www.eventbriteapi.com/v3/events/search/?location.longitude=%s&location.latitude=%s&location.within=%smi&token=%s' % (request.GET.get('lng'), request.GET.get('lat'), request.GET.get('radius'), settings.EVENTBRITEAPIKEY)
     data = {
-        'most_popular_events_per_day': days_to_events, 'top_ten_events': top_ten_events,
+        'most_popular_events_per_day': days_to_events,
+            'top_ten_events': top_ten_events,
            'top_ten_events_with_food': top_ten_events_with_food, 'eventbrite_per_day': eventbrite_per_day}
     return JsonResponse(data, safe=False)
