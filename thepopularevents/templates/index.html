@@ -13,6 +13,7 @@ var googleapikey = '{{ googleapikey }}';
 {% verbatim %}
 <script>
 $(function() {
+  setTimeout(function(){console.log($("#top-jumbotron").height());$("#bottom-jumbotron").css({'padding-top':((64 + $("#top-jumbotron").height())+'px')});},500);
 function pad(n, width, z) {
 z = z || '0';
 n = n + '';
@@ -35,7 +36,7 @@ return this.yearAndMonth.format('YYYY-')+this.yearAndMonth.format('MM-')+pad(day
 }
 },
 template: `<div><h2>{{ month }}</h2>
-<table>
+<table class="calendar">
 <tr><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th>
 <th>Thursday</th><th>Friday</th><th>Saturday</th></tr>
 <tr v-for="vertical_i in range(numberOfRows)">
@@ -116,16 +117,26 @@ dayOfMonth: moment().date(),
 endOfMonth: moment().endOf('month').date(),
 nextMonthEndOfMonth: moment().add(1, 'months').startOf('month').endOf('month').date(),
 eventsByDay: {},
-topTenEvents: [],
+topTenEventsRegardlessOfFood: [],
+topTenEventsWithFood: [],
 usersPosition: {},
 usersCity: '',
 radius: 20,
 isMobile: $(window).width() < 600,
 },
+computed: {
+  topTenEvents: function() {
+    if (this.searchSettings.mustHaveFood) {
+      return this.topTenEventsWithFood
+    }
+    return this.topTenEventsRegardlessOfFood
+  }
+},
 created: function() {
   navigator.geolocation.getCurrentPosition(this.setUsersPosition)
 
 },
+mixins: [settingsMixin],
 methods: {
   setUsersPosition: function(position) {
     this.usersPosition = {'lat': position.coords.latitude, 'lng': position.coords.longitude}
@@ -134,14 +145,18 @@ methods: {
       app.search();
     })
   },
+  prettyTime: function(time) {
+    return moment(time).format('M/D/YY h:MM A')
+  },
   search: function() {
     app.eventsByDay = {};
-    app.topTenEvents = [];
+    app.topTenEventsRegardlessOfFood = [];
+    app.topTenEventsWithFood = [];
     $.get('https://maps.googleapis.com/maps/api/geocode/json?address='+app.usersCity, function(data) {
       app.usersPosition = data.results[0].geometry.location;
       $.get('/get_events/?radius='+$('#radius option:selected').text()+'&lat='+app.usersPosition.lat+'&lng='+app.usersPosition.lng, function(data) {
       app.eventsByDay = data.most_popular_events_per_day;
-      app.topTenEvents = data.top_ten_events;
+      app.topTenEventsRegardlessOfFood = data.top_ten_events;
       app.topTenEventsWithFood = data.top_ten_events_with_food;
       })
     })
@@ -156,6 +171,7 @@ methods: {
 body {
   font:1.25em sans-serif;
   margin:0 10px 10px 10px;
+  text-align:center;
 }
 th, strong {font-weight:bold}
 h1 {font-size:2em;font-weight:bold;}
@@ -173,7 +189,7 @@ border-collapse:collapse;
 width:100%;
 }
 p {
-  margin:0;
+  margin-bottom:10px;
 }
 #users-address {
   width:400px;
@@ -182,29 +198,55 @@ ul {
   list-style:square;
   margin-left:20px;
 }
+#topten table {text-align:left;max-width:1000px;margin:0 auto;}
+#top-jumbotron {
+  z-index:1;
+  position:absolute;
+  top:0;left:0;right:0;
+  opacity:0.7;
+}
+#bottom-jumbotron {
+  background:url('/static/h1background.jpg') center bottom;
+}
 .jumbotron {
-  background:url('/static/h1background.jpg') #000 center bottom;
+  font-size:1.25em;
+  background: #000;
   color: #FFF;
+  margin:0 -10px;
+}
+.jumbotron input, .jumbotron button, .jumbotron select {
+  border:1px solid #FFF;color:#FFF;background-color:transparent;padding:10px;
+}
+.jumbotron a:link, .jumbotron a:visited {
+  color:#FFF;
+  text-decoration:underline;
+
+}
+.jumbotron a:hover {
+  text-decoration:none;
+}
+.calendar td {
+  width:14%;
 }
 </style>
 </head>
 <body>
 <div id="app">
-<div class="jumbotron text-center">
-<h1>The Popular Events</h1>
-  <p>This app makes it easy to find popular events listed on meetup.com. See the <a href="https://github.com/pythonwebcoder/thepopularevents" target="_blank">source code</a>.</p>
+<div class="jumbotron" id="bottom-jumbotron"></div>
+<div class="jumbotron text-center" id="top-jumbotron">
+<h1>Popular Events</h1>
+  <p>This site lists events from <a href="https://meetup.com">Meetup.com</a> by number of registered guests. See the <a href="https://github.com/pythonwebcoder/thepopularevents" target="_blank">site's source code</a>.</p>
+    <p>Your address or city/state: <input id="users-address" type="text" v-model="usersCity" @keyup.enter="search" /> Miles to search: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select>
+    Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" /> <button v-on:click="search">Search</button></p>
 </div>
-Your address or city/state: <input id="users-address" type="text" v-model="usersCity" @keyup.enter="search" /> Miles: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select>
-Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" /> <button v-on:click="search">Search</button>
+
 <template v-if="topTenEvents.length > 0">
 
-<h2>Top Ten Events</h2>
-<ul v-if="searchSettings.mustHaveFood">
-<li v-for="event in topTenEventsWithFood">On {{ event.local_date }}: <event-info v-bind:event="event"></event-info></li>
-</ul>
-<ul v-else>
-<li v-for="event in topTenEvents">On {{ event.local_date }}: <event-info v-bind:event="event"></event-info></li>
-</ul>
+<h2>Top ten events with <template v-if="searchSettings.mustHaveFood">food and </template>most registered attendees</h2><div id="topten">
+  <table>
+    <tr><th># registered</th><th>Food/no food</th><th>Date & time</th><th>Event</th></tr>
+<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.local_date + ' ' + event.local_time) }}</td><td><a target="_blank" v-bind:href="event.link">{{ event.group.name }}: {{ event.name }}</a></td></tr>
+</table></div>
 <template v-if="isMobile">
   <template v-for="date in Object.keys(eventsByDay).sort()">
     <h3>{{ date }}</h3>
