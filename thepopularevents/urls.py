@@ -15,11 +15,17 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 import thepopularevents.views
-
+import django.views.static
+import os
+print os.path.join(settings.BASE_DIR, "static")
+os.system('ls %s' % (os.path.join(settings.BASE_DIR, "static")))
 urlpatterns = [
+    url(r'^static/(?P<path>.*)$', django.views.static.serve,{'document_root':os.path.join(settings.BASE_DIR, "static/")}),
     url(r'^admin/', admin.site.urls),
     url(r'^$', thepopularevents.views.home_page, name='home'),
     url(r'^get_events/$',
         thepopularevents.views.get_events, name='get_events'),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

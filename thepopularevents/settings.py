@@ -122,7 +122,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = BASE_DIR
+STATICFILES_DIRS = ( os.path.join(BASE_DIR, "static"), )
 MEETUPAPIKEY = os.environ.get('MEETUPAPIKEY')
 GOOGLEAPIKEY = os.environ.get("GOOGLEAPIKEY")
 EVENTBRITEAPIKEY = os.environ.get("EVENTBRITEAPIKEY")

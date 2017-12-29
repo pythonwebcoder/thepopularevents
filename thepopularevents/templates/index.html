@@ -1,6 +1,8 @@
 <html><head><title>The Popular Events</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.6/vue.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.2/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 <script>
@@ -180,13 +182,18 @@ ul {
   list-style:square;
   margin-left:20px;
 }
+.jumbotron {
+  background:url('/static/h1background.jpg') #000 center bottom;
+  color: #FFF;
+}
 </style>
 </head>
 <body>
 <div id="app">
-
+<div class="jumbotron text-center">
 <h1>The Popular Events</h1>
   <p>This app makes it easy to find popular events listed on meetup.com. See the <a href="https://github.com/pythonwebcoder/thepopularevents" target="_blank">source code</a>.</p>
+</div>
 Your address or city/state: <input id="users-address" type="text" v-model="usersCity" @keyup.enter="search" /> Miles: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select>
 Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" /> <button v-on:click="search">Search</button>
 <template v-if="topTenEvents.length > 0">
