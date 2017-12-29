@@ -1,5 +1,6 @@
 <html><head><title>The Popular Events</title>
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.6/vue.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
@@ -265,7 +266,7 @@ ul {
 <calendar v-bind:search-settings="searchSettings" v-bind:month="nextMonth" v-bind:year-and-month="nextYearAndMonth" v-bind:day-of-week="nextMonthDayOfWeek" v-bind:last-day-of-month-day-of-week="nextMonthLastDayOfMonthDayOfWeek" v-bind:day-of-month="1" v-bind:end-of-month="nextMonthEndOfMonth" v-bind:events-by-day="eventsByDay"></calendar>
 </template>
 </template>
-<template v-else><p>Loading top ten list and calendars</p></template>
+<template v-else><p style="font-size:1.5em"><i class='fa fa-circle-o-notch fa-spin'></i> Loading search results</p></template>
 {% endverbatim %}
 </div>
 </body></html>
