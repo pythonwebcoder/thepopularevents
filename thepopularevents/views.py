@@ -22,12 +22,21 @@ def get_events(request):
     import requests
     if not settings.MEETUPAPIKEY:
         return JsonResponse({'success': False, 'error': 'MEETUPAPIKEY environment variable not set'})
-
-    events_url = 'https://api.meetup.com/find/upcoming_events?radius=%s&lat=%s&lon=%s&page=20000&key=%s&end_date_range=2020-12-30T00:00:00' % (
-        request.GET.get('radius'), request.GET.get('lat'), request.GET.get('lng'), settings.MEETUPAPIKEY)
-    print events_url
-    print requests.get(events_url)
-    events = requests.get(events_url).json()['events']
+    events = []
+    import datetime
+    two_months_from_now = (datetime.date.today() + datetime.timedelta(2*365/12)).isoformat()
+    events_url = 'https://api.meetup.com/find/upcoming_events?radius=%s&order=time&lat=%s&lon=%s&page=20000&key=%s&end_date_range=%sT00:00:00' % (
+        request.GET.get('radius'), request.GET.get('lat'), request.GET.get('lng'), settings.MEETUPAPIKEY, two_months_from_now)
+    result = requests.get(events_url)
+    events.extend(result.json()['events'])
+    while True:
+        events_url = result.headers.get('Link')
+        if not events_url:
+            break
+        events_url = events_url[1:events_url.index('>')]
+        result = requests.get(events_url)
+        events.extend(result.json()['events'])
+    print '# of events ', len(events)
     top_ten_events = sorted(
         [y for y in events], key=lambda t: t.get('yes_rsvp_count'), reverse=True)[:10]
     top_ten_events_with_food = [z for z in sorted([y for y in events], key=lambda t: t.get(
