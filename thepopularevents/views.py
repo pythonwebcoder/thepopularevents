@@ -27,7 +27,7 @@ def get_events(request):
         return JsonResponse({'success': False, 'error': 'MEETUPAPIKEY environment variable not set'})
     events = []
     import datetime
-    events_url = 'https://api.meetup.com/2/open_events?fields=timezone&and_text=False&sign=True&format=json&page=1000&radius=%s&order=time&lat=%s&lon=%s&key=%s' % (
+    events_url = 'https://api.meetup.com/2/open_events?fields=timezone&and_text=False&sign=True&format=json&page=1000&radius=%s&order=time&lat=%s&lon=%s&key=%s&text_format=plain&time=,2m' % (
         request.GET.get('radius'), request.GET.get('lat'), request.GET.get('lng'), settings.MEETUPAPIKEY)
     result = requests.get(events_url)
     #&time=0m,2m
@@ -63,4 +63,5 @@ def get_events(request):
         'most_popular_events_per_day': days_to_events,
             'top_ten_events': top_ten_events,
            'top_ten_events_with_food': top_ten_events_with_food}
+    print "done"
     return JsonResponse(data, safe=False)

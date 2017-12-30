@@ -3,6 +3,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.6/vue.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.2/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
@@ -10,6 +11,7 @@
 var googleapikey = '{{ googleapikey }}';
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" />
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 {% verbatim %}
 <script>
@@ -141,6 +143,12 @@ created: function() {
 
 },
 mixins: [settingsMixin],
+watch: {
+  eventsByDay: function(data) {
+    console.log('changed')
+    setTimeout(function() {$('[data-toggle="popover"]').popover({container: 'body'})},2000)
+  }
+},
 methods: {
   setUsersPosition: function(position) {
     this.usersPosition = {'lat': position.coords.latitude, 'lng': position.coords.longitude}
@@ -152,6 +160,7 @@ methods: {
   prettyTime: function(time) {
     return moment(time).format('M/D/YY h:MM A')
   },
+
   search: function() {
     app.eventsByDay = {};
     app.topTenEventsRegardlessOfFood = [];
@@ -180,7 +189,9 @@ body {
 th, strong {font-weight:bold}
 h1 {font-size:2em;font-weight:bold;}
 h2 {font-size:1.5em;font-weight:bold;}
-
+.popover{
+        max-width:100% !important;
+    }
 h3 {font-size:1.25em;font-weight:bold;}
 h1, h2 {margin:10px 0;}
 th, td {
@@ -254,7 +265,7 @@ ul {
 <h2>Top ten events with <template v-if="searchSettings.mustHaveFood">food and </template>most registered attendees</h2><div id="topten">
   <table>
     <tr><th># registered</th><th>Food/no food</th><th>Date & time</th><th>Event</th></tr>
-<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.time) }}</td><td><a target="_blank" v-bind:href="event.event_url">{{ event.group.name }}: {{ event.name }}</a></td></tr>
+<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.time) }}</td><td><a target="_blank" v-bind:href="event.event_url" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="Description of event" v-bind:data-content="event.description">{{ event.group.name }}: {{ event.name }}</a></td></tr>
 </table></div>
 <template v-if="isMobile">
   <template v-for="date in Object.keys(eventsByDay).sort()">
