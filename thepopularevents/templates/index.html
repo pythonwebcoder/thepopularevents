@@ -67,12 +67,15 @@ settingsMixin = {methods: {
       }} catch(err) {}
     })
     return returnTrue;
+  },
+  displayTime: function(time) {
+    return moment(time).format('h:MM A')
   }
 }}
 Vue.component('event-info', {
   mixins: [settingsMixin],
   props: ['event'],
-  template: '<span>{{ event.yes_rsvp_count }} attending "<a target="_blank" v-bind:href="event.link">{{ event.group.name }}: {{ event.name }}</a>" at {{ event.local_time }}<template v-if="event.venue"> in {{ event.venue.city }}</template> ({{ hasFood(event.description) ? "food" : "no food" }})</span>'
+  template: '<span>{{ event.yes_rsvp_count }} attending "<a target="_blank" v-bind:href="event.event_url">{{ event.group.name }}: {{ event.name }}</a>" at {{ displayTime(event.time) }}<template v-if="event.venue"> in {{ event.venue.city }}</template> ({{ hasFood(event.description) ? "food" : "no food" }})</span>'
 })
 Vue.component('calendar-cell', {
 // The todo-item component now accepts a
@@ -251,7 +254,7 @@ ul {
 <h2>Top ten events with <template v-if="searchSettings.mustHaveFood">food and </template>most registered attendees</h2><div id="topten">
   <table>
     <tr><th># registered</th><th>Food/no food</th><th>Date & time</th><th>Event</th></tr>
-<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.local_date + ' ' + event.local_time) }}</td><td><a target="_blank" v-bind:href="event.link">{{ event.group.name }}: {{ event.name }}</a></td></tr>
+<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.time) }}</td><td><a target="_blank" v-bind:href="event.event_url">{{ event.group.name }}: {{ event.name }}</a></td></tr>
 </table></div>
 <template v-if="isMobile">
   <template v-for="date in Object.keys(eventsByDay).sort()">

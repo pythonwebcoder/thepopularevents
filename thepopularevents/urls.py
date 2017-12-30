@@ -20,10 +20,7 @@ from django.conf.urls.static import static
 import thepopularevents.views
 import django.views.static
 import os
-print os.path.join(settings.BASE_DIR, "static")
-os.system('ls %s' % (os.path.join(settings.BASE_DIR, "static")))
 urlpatterns = [
-    url(r'^static/(?P<path>.*)$', django.views.static.serve,{'document_root':os.path.join(settings.BASE_DIR, "static/")}),
     url(r'^admin/', admin.site.urls),
     url(r'^$', thepopularevents.views.home_page, name='home'),
     url(r'^get_events/$',
