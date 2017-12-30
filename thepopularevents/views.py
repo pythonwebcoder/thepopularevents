@@ -27,9 +27,10 @@ def get_events(request):
         return JsonResponse({'success': False, 'error': 'MEETUPAPIKEY environment variable not set'})
     events = []
     import datetime
-    events_url = 'https://api.meetup.com/2/open_events?and_text=False&offset=1&sign=True&format=json&page=1000&radius=%s&order=time&lat=%s&lon=%s&key=%s&time=0,2m' % (
+    events_url = 'https://api.meetup.com/2/open_events?fields=timezone&and_text=False&sign=True&format=json&page=1000&radius=%s&order=time&lat=%s&lon=%s&key=%s' % (
         request.GET.get('radius'), request.GET.get('lat'), request.GET.get('lng'), settings.MEETUPAPIKEY)
     result = requests.get(events_url)
+    #&time=0m,2m
     try:
         events.extend(result.json()['results'])
     except:
@@ -37,18 +38,21 @@ def get_events(request):
     i = 0
     while True:
         i += 1
-        events_url = result.json()['meta'].get('next')
-        if not events_url:
-            break
-        print events_url
-        try:
-            result = requests.get(events_url)
 
+        try:
+            events_url = result.json()['meta'].get('next')
+            if not events_url:
+                break
+            print events_url
+            result = requests.get(events_url)
+            events.extend(result.json()['results'])
         except:
+            print 'error', result.text
             break
-        events.extend(result.json()['results'])
+
     top_ten_events = sorted(
         [y for y in events], key=lambda t: t.get('yes_rsvp_count'), reverse=True)[:10]
+    print 'timezone', events[0]['timezone']
     print len(events)
     top_ten_events_with_food = [z for z in sorted([y for y in events], key=lambda t: t.get(
         'yes_rsvp_count'), reverse=True) if has_food(z.get('description'))][:10]
