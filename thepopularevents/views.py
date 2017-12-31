@@ -21,6 +21,10 @@ def convert_to_date(time):
     import datetime
     return datetime.datetime.fromtimestamp(time/1000).strftime('%Y-%m-%d')
 
+def make_days_to_events(events):
+    return dict([(date, sorted([event for event in events if convert_to_date(event.get('time')) == date], key=lambda t: t.get('yes_rsvp_count'), reverse=True))
+                          for date in set([convert_to_date(row.get("time")) for row in events])])
+
 def get_events(request):
     import requests
     if not settings.MEETUPAPIKEY:
@@ -56,8 +60,7 @@ def get_events(request):
     print len(events)
     top_ten_events_with_food = [z for z in sorted([y for y in events], key=lambda t: t.get(
         'yes_rsvp_count'), reverse=True) if has_food(z.get('description'))][:10]
-    days_to_events = dict([(x, sorted([y for y in events if convert_to_date(y.get('time')) == x], key=lambda t: t.get('yes_rsvp_count'), reverse=True))
-                          for x in [convert_to_date(row.get("time")) for row in events]])
+    days_to_events = make_days_to_events(events)
 
     data = {
         'most_popular_events_per_day': days_to_events,
