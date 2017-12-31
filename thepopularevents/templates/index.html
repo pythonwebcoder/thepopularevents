@@ -264,8 +264,8 @@ ul {
 
 <h2>Top ten events with <template v-if="searchSettings.mustHaveFood">food and </template>most registered attendees</h2><div id="topten">
   <table>
-    <tr><th># registered</th><th>Food/no food</th><th>Date & time</th><th>Event</th></tr>
-<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.time) }}</td><td><a target="_blank" v-bind:href="event.event_url" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="Description of event" v-bind:data-content="event.description">{{ event.group.name }}: {{ event.name }}</a></td></tr>
+    <tr><th># registered</th><th>Food/no food</th><th>Date & time</th><th>City</th><th>Event</th></tr>
+<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.time) }}</td><td>{{ event.venue.city }}</td><td><a target="_blank" v-bind:href="event.event_url" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="Description of event" v-bind:data-content="event.description">{{ event.group.name }}: {{ event.name }}</a></td></tr>
 </table></div>
 <template v-if="isMobile">
   <template v-for="date in Object.keys(eventsByDay).sort()">
