@@ -60,7 +60,7 @@ template: `<div><h2>{{ month }}</h2>
 })
 settingsMixin = {methods: {
   hasFood: function(description) {
-    items = ['food', 'happy hour', 'snacks', 'appetizer']
+    items = ['food', 'happy hour', 'snacks', 'appetizer', 'pizza', 'lunch', 'breakfast', 'dinner']
     returnTrue = false;
     $.each(items, function(i, item) {
       try {
@@ -145,7 +145,6 @@ created: function() {
 mixins: [settingsMixin],
 watch: {
   eventsByDay: function(data) {
-    console.log('changed')
     setTimeout(function() {$('[data-toggle="popover"]').popover({container: 'body'})},2000)
   }
 },
@@ -166,8 +165,10 @@ methods: {
     app.topTenEventsRegardlessOfFood = [];
     app.topTenEventsWithFood = [];
     $.get('https://maps.googleapis.com/maps/api/geocode/json?address='+app.usersCity, function(data) {
+
       app.usersPosition = data.results[0].geometry.location;
-      $.get('/get_events/?radius='+$('#radius option:selected').text()+'&lat='+app.usersPosition.lat+'&lng='+app.usersPosition.lng, function(data) {
+      $.get('/get_events/?radius='+$('#radius option:selected').text()+'&lat='+app.usersPosition.lat+'&lng='+app.usersPosition.lng+'&search_terms='+$('#search_terms').val(), function(data) {
+        console.log('TTE', data.top_ten_events.length);
       app.eventsByDay = data.most_popular_events_per_day;
       app.topTenEventsRegardlessOfFood = data.top_ten_events;
       app.topTenEventsWithFood = data.top_ten_events_with_food;
@@ -257,7 +258,7 @@ ul {
 <h1>Popular Events</h1>
   <p>This site lists events from <a href="https://meetup.com">Meetup.com</a> by number of registered guests. See the <a href="https://github.com/pythonwebcoder/thepopularevents" target="_blank">site's source code</a>.</p>
     <p>Your address or city/state: <input id="users-address" type="text" v-model="usersCity" @keyup.enter="search" /> Miles to search: <select id="radius" v-model="radius"><option v-for="m in [5,10,15,20]">{{ m }}</option></select>
-    Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" /> <button v-on:click="search">Search</button></p>
+    Must have food: <input type="checkbox" v-model="searchSettings.mustHaveFood" /> Search terms: <input type="text" id="search_terms" @keyup.enter="search" /> <button v-on:click="search">Search</button></p>
 </div>
 
 <template v-if="topTenEvents.length > 0">
@@ -265,7 +266,7 @@ ul {
 <h2>Top ten events with <template v-if="searchSettings.mustHaveFood">food and </template>most registered attendees</h2><div id="topten">
   <table>
     <tr><th># registered</th><th>Food/no food</th><th>Date & time</th><th>City</th><th>Event</th></tr>
-<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.time) }}</td><td>{{ event.venue.city }}</td><td><a target="_blank" v-bind:href="event.event_url" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="Description of event" v-bind:data-content="event.description">{{ event.group.name }}: {{ event.name }}</a></td></tr>
+<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.time) }}</td><td><template v-if="event.venue">{{ event.venue.city }}</template></td><td><a target="_blank" v-bind:href="event.event_url" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="Description of event" v-bind:data-content="event.description">{{ event.group.name }}: {{ event.name }}</a></td></tr>
 </table></div>
 <template v-if="isMobile">
   <template v-for="date in Object.keys(eventsByDay).sort()">

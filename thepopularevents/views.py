@@ -9,7 +9,7 @@ def home_page(request):
 
 
 def has_food(description):
-    items = ['food', 'happy hour', 'snacks', 'appetizer', 'pizza']
+    items = ['food', 'happy hour', 'snacks', 'appetizer', 'pizza', 'lunch', 'breakfast', 'dinner']
     if not description:
         return False
     for item in items:
@@ -31,14 +31,14 @@ def get_events(request):
         return JsonResponse({'success': False, 'error': 'MEETUPAPIKEY environment variable not set'})
     events = []
     import datetime
-    events_url = 'https://api.meetup.com/2/open_events?fields=timezone&and_text=False&sign=True&format=json&page=1000&radius=%s&order=time&lat=%s&lon=%s&key=%s&text_format=plain&time=,2m' % (
-        request.GET.get('radius'), request.GET.get('lat'), request.GET.get('lng'), settings.MEETUPAPIKEY)
+    events_url = 'https://api.meetup.com/2/open_events?fields=timezone&and_text=False&sign=True&format=json&page=1000&radius=%s&order=time&lat=%s&lon=%s&key=%s&text_format=plain&time=,2m&text=%s' % (
+        request.GET.get('radius'), request.GET.get('lat'), request.GET.get('lng'), settings.MEETUPAPIKEY, request.GET.get('search_terms', ''))
     result = requests.get(events_url)
     #&time=0m,2m
     try:
         events.extend(result.json()['results'])
     except:
-        print result.text
+        pass
     i = 0
     while True:
         i += 1
@@ -47,17 +47,13 @@ def get_events(request):
             events_url = result.json()['meta'].get('next')
             if not events_url:
                 break
-            print events_url
             result = requests.get(events_url)
             events.extend(result.json()['results'])
         except:
-            print 'error', result.text
             break
 
     top_ten_events = sorted(
         [y for y in events], key=lambda t: t.get('yes_rsvp_count'), reverse=True)[:10]
-    print 'timezone', events[0]['timezone']
-    print len(events)
     top_ten_events_with_food = [z for z in sorted([y for y in events], key=lambda t: t.get(
         'yes_rsvp_count'), reverse=True) if has_food(z.get('description'))][:10]
     days_to_events = make_days_to_events(events)
@@ -66,5 +62,4 @@ def get_events(request):
         'most_popular_events_per_day': days_to_events,
             'top_ten_events': top_ten_events,
            'top_ten_events_with_food': top_ten_events_with_food}
-    print "done"
     return JsonResponse(data, safe=False)
