@@ -168,7 +168,6 @@ methods: {
 
       app.usersPosition = data.results[0].geometry.location;
       $.get('/get_events/?radius='+$('#radius option:selected').text()+'&lat='+app.usersPosition.lat+'&lng='+app.usersPosition.lng+'&search_terms='+$('#search_terms').val(), function(data) {
-        console.log('TTE', data.top_ten_events.length);
       app.eventsByDay = data.most_popular_events_per_day;
       app.topTenEventsRegardlessOfFood = data.top_ten_events;
       app.topTenEventsWithFood = data.top_ten_events_with_food;
@@ -265,8 +264,8 @@ ul {
 
 <h2>Top ten events with <template v-if="searchSettings.mustHaveFood">food and </template>most registered attendees</h2><div id="topten">
   <table>
-    <tr><th># registered</th><th>Food/no food</th><th>Date & time</th><th>City</th><th>Event</th></tr>
-<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td>{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.time) }}</td><td><template v-if="event.venue">{{ event.venue.city }}</template></td><td><a target="_blank" v-bind:href="event.event_url" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="Description of event" v-bind:data-content="event.description">{{ event.group.name }}: {{ event.name }}</a></td></tr>
+    <tr><th># registered</th><th>Spots left</th><th v-if="!searchSettings.mustHaveFood">Food/no food</th><th>Date & time</th><th>City</th><th>Event</th></tr>
+<tr v-for="event in topTenEvents"><td>{{ event.yes_rsvp_count }}</td><td><template v-if="event.rsvp_limit">{{ event.rsvp_limit - event.yes_rsvp_count }}</template></td><td v-if="!searchSettings.mustHaveFood">{{ hasFood(event.description) ? 'food' : 'no food' }}</td><td>{{ prettyTime(event.time) }}</td><td><template v-if="event.venue">{{ event.venue.city }}</template></td><td><a target="_blank" v-bind:href="event.event_url" data-toggle="popover" data-placement="bottom" data-trigger="hover" title="Description of event" v-bind:data-content="event.description">{{ event.group.name }}: {{ event.name }}</a></td></tr>
 </table></div>
 <template v-if="isMobile">
   <template v-for="date in Object.keys(eventsByDay).sort()">
