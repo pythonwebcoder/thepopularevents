@@ -5,7 +5,7 @@ import requests
 
 
 def home_page(request):
-    return render(request, 'index.html', {'googleapikey': settings.GOOGLEAPIKEY})
+    return render(request, 'index.html', {'googleapikey': settings.GOOGLEAPIKEY, 'google_analytics_key': settings.GOOGLE_ANALYTICS_KEY})
 
 
 def has_food(description):

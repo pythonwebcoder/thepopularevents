@@ -16,7 +16,7 @@ var googleapikey = '{{ googleapikey }}';
 {% verbatim %}
 <script>
 $(function() {
-  setTimeout(function(){console.log($("#top-jumbotron").height());$("#bottom-jumbotron").css({'padding-top':((64 + $("#top-jumbotron").height())+'px')});},500);
+  setTimeout(function(){$("#bottom-jumbotron").css({'padding-top':((64 + $("#top-jumbotron").height())+'px')});},500);
 function pad(n, width, z) {
 z = z || '0';
 n = n + '';
@@ -283,4 +283,14 @@ ul {
 <template v-else><p style="font-size:1.5em"><i class='fa fa-circle-o-notch fa-spin'></i> Loading search results. Note it takes around a minute to get the results</p></template>
 {% endverbatim %}
 </div>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-111594840-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '{{ google_analytics_key }}');
+</script>
+
 </body></html>
