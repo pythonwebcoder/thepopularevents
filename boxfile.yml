@@ -17,6 +17,3 @@ deploy.config:
   before_live:
     web.main:
       - python manage.py migrate --fake-initial
-  after_live:
-    web.main:
-      - 'sh /app/scripts/rollbar_deploy_alert.sh'
