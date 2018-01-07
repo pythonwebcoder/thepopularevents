@@ -4,12 +4,21 @@ from . import settings
 import requests
 import datetime
 
+
 def home_page(request):
     return render(request, 'index.html', {'googleapikey': settings.GOOGLEAPIKEY, 'google_analytics_key': settings.GOOGLE_ANALYTICS_KEY})
 
 
 def has_food(description):
-    items = ['food', 'happy hour', 'snacks', 'appetizer', 'pizza', 'lunch', 'breakfast', 'dinner']
+    items = [
+        'food',
+        'happy hour',
+     'snacks',
+     'appetizer',
+     'pizza',
+     'lunch',
+     'breakfast',
+     'dinner']
     if not description:
         return False
     for item in items:
@@ -17,13 +26,16 @@ def has_food(description):
             return True
     return False
 
+
 def convert_to_date(time):
     import datetime
-    return datetime.datetime.fromtimestamp(time/1000).strftime('%Y-%m-%d')
+    return datetime.datetime.fromtimestamp(time / 1000).strftime('%Y-%m-%d')
+
 
 def make_days_to_events(events):
     return dict([(date, sorted([event for event in events if convert_to_date(event.get('time')) == date], key=lambda t: t.get('yes_rsvp_count'), reverse=True))
-                          for date in set([convert_to_date(row.get("time")) for row in events])])
+                 for date in set([convert_to_date(row.get("time")) for row in events])])
+
 
 def get_meetup_event_data(request, next_url=None, events=[]):
     if next_url:
@@ -49,11 +61,10 @@ def get_events(request):
         return JsonResponse({'success': False, 'error': 'MEETUPAPIKEY environment variable not set'})
     events = get_meetup_event_data(request)
 
-
     top_ten_events = sorted(
-        [y for y in events], key=lambda t: t.get('yes_rsvp_count'), reverse=True)[:10]
-    top_ten_events_with_food = [z for z in sorted([y for y in events], key=lambda t: t.get(
-        'yes_rsvp_count'), reverse=True) if has_food(z.get('description'))][:10]
+        [event for event in events], key=lambda event: event.get('yes_rsvp_count'), reverse=True)[:10]
+    top_ten_events_with_food = [event for event in sorted([event for event in events], key=lambda event: event.get(
+        'yes_rsvp_count'), reverse=True) if has_food(event.get('description'))][:10]
     days_to_events = make_days_to_events(events)
 
     data = {
