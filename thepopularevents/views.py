@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from . import settings
 import requests
 import datetime
-
+import json
 
 def home_page(request):
     return render(request, 'index.html', {'googleapikey': settings.GOOGLEAPIKEY, 'google_analytics_key': settings.GOOGLE_ANALYTICS_KEY})
@@ -50,7 +50,7 @@ def get_meetup_event_data(request, next_url=None, events=[]):
         return events
     next_url = result.json()['meta'].get('next')
     if not next_url:
-        return list(set(events))
+        return list([json.loads(event) for event in set([json.dumps(event, sort_keys=True) for event in events])])
     else:
         return get_meetup_event_data(request, next_url=next_url, events=events)
 
