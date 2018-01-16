@@ -50,7 +50,7 @@ def get_meetup_event_data(request, next_url=None, events=[]):
         return events
     next_url = result.json()['meta'].get('next')
     if not next_url:
-        return events
+        return list(set(events))
     else:
         return get_meetup_event_data(request, next_url=next_url, events=events)
 
