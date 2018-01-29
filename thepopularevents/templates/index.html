@@ -164,7 +164,7 @@ methods: {
     app.eventsByDay = {};
     app.topTenEventsRegardlessOfFood = [];
     app.topTenEventsWithFood = [];
-    $.get('https://maps.googleapis.com/maps/api/geocode/json?address='+app.usersCity, function(data) {
+    $.get('https://maps.googleapis.com/maps/api/geocode/json?address='+app.usersCity+'&key='+googleapikey, function(data) {
 
       app.usersPosition = data.results[0].geometry.location;
       $.get('/get_events/?radius='+$('#radius option:selected').text()+'&lat='+app.usersPosition.lat+'&lng='+app.usersPosition.lng+'&search_terms='+$('#search_terms').val(), function(data) {
